@@ -1,0 +1,18 @@
+﻿@page "/Company/create"
+@using IraoAssignment.Shared
+@inject HttpClient http
+@inject NavigationManager uriHelper
+
+<h3>Create</h3>
+
+<Form ButtonText="Add a company" Company="@company"
+            OnValidSubmit="@CreateCompany" />
+
+@code {
+    Company company = new Company();
+    async Task CreateCompany()
+    {
+        await http.PostAsJsonAsync("api/company", company);
+        uriHelper.NavigateTo("company");
+    }
+}

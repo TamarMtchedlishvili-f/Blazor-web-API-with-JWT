@@ -1,0 +1,29 @@
+﻿@page "/Company/edit/{CompanyId:int}"
+@using IraoAssignment.Shared
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+
+<h3>Edit</h3>
+
+<Form ButtonText="Update" Company="company"
+      OnValidSubmit="@EditCompany" />
+
+@code {
+    [Parameter] public int CompanyId { get; set; }
+    
+    Company company = new Company();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        company = await http.GetFromJsonAsync<Company>($"api/Company/{CompanyId}");
+    }
+
+    async Task EditCompany()
+    {
+        await http.PutAsJsonAsync("api/Company", company);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("Company");
+
+    }
+}

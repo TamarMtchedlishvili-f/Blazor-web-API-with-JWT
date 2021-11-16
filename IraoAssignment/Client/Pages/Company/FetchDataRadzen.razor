@@ -1,0 +1,109 @@
+﻿@page "/Company"
+@using IraoAssignment.Shared
+
+@inject HttpClient client
+@inject IJSRuntime js
+@inject NavigationManager uriHelper
+
+<h1>Companies</h1>
+
+@* <p>Companies! 😲</p> *@
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow"/>
+<RadzenDataGrid @ref=CompaniesGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true"
+                EditMode="DataGridEditMode.Single" Data="@Companies" TItem="Company" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        @* <RadzenDataGridColumn TItem="Company" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center"/> *@
+
+        @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
+        <RadzenDataGridColumn TItem="Company" Property="Id" Title="Id"/>
+        <RadzenDataGridColumn TItem="Company" Property="CompanyName" Title="Company Name"/>
+        <RadzenDataGridColumn TItem="Company" Property="CompanyPrice" Title="Company Price" Width="150px"/>
+        <RadzenDataGridColumn TItem="Company" Property="MarketName" Title="Market Name"/>
+        <RadzenDataGridColumn TItem="Company" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+            <Template Context="order">
+                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton Icon="save" Size="ButtonSize.Small" Click="@((args) => SaveRow(order))">
+                </RadzenButton>
+                <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Company" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+            <Template Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Company> CompaniesGrid;
+
+    Company[] Companies { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Companies = await client.GetFromJsonAsync<Company[]>("api/company");
+    }
+
+    async Task SaveRow(Company company)
+    {
+        await CompaniesGrid.UpdateRow(company);
+    }
+
+    async Task DeleteRow(Company company)
+    {
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {company.CompanyName}'s ({company.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/company/{company.Id}");
+            await OnInitializedAsync();
+        }
+    }
+
+    void CancelEdit(Company company)
+    {
+        CompaniesGrid.CancelEditRow(company);
+    }
+
+    async Task InsertRow()
+    {
+        uriHelper.NavigateTo($"company/create");
+    }
+
+    void EditRow(Company company)
+    {
+        uriHelper.NavigateTo($"company/edit/{company.Id}");
+    }
+
+    async Task OnCreateRow(Company company)
+    {
+        await client.PostAsJsonAsync("api/company", company);
+    }
+
+    async Task OnUpdateRow(Company company)
+    {
+        await client.PutAsJsonAsync("api/company", company);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("company");
+    }
+
+    async Task Delete(int companyId)
+    {
+        var company = Companies.First(x => x.Id == companyId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {company.CompanyName}'s ({company.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/company/{companyId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

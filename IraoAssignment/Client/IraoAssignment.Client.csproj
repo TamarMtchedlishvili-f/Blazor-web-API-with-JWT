@@ -7,13 +7,26 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.11" PrivateAssets="all" />
+    <PackageReference Include="Radzen.Blazor" Version="3.12.1" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
 <!--    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="" PrivateAssets="all" />-->
     
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Company\Create.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Company\Edit.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Company\FetchData.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Company\FetchDataRadzen.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Company\Form.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Shared\IraoAssignment.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Market" />
   </ItemGroup>
 
 </Project>

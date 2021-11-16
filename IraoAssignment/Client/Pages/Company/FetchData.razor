@@ -1,0 +1,70 @@
+﻿@page "/Company2"
+@using IraoAssignment.Shared
+@inject HttpClient client
+@inject IJSRuntime js
+
+<h3>Companies</h3>
+@* <small>Add as many Companies as you wish.</small> *@
+<div class="form-group">
+    <a class="btn btn-success" href="Company/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+
+@if (Companies == null)
+{
+    <text>Loading...</text>
+}
+else if (Companies.Length == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Company Name</th>
+            <th>Company Price</th>
+            <th>Market Name</th>
+        <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (Company company in Companies)
+        {
+            <tr>
+                <td>@company.Id</td>
+                <td>@company.CompanyName</td>
+                <td>@company.CompanyPrice</td>
+                <td>@company.MarketName</td>
+                <td>
+                    <a class="btn btn-success" href="Company/edit/@company.Id">Edit</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(company.Id))">Delete</button>
+                </td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    Company[] Companies { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Companies = await client.GetFromJsonAsync<Company[]>("api/Company");
+    }
+
+    async Task Delete(int CompanyId)
+    {
+        var company = Companies.First(x => x.Id == CompanyId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {company.CompanyName}'s ({company.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/Company/{CompanyId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}
