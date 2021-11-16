@@ -10,11 +10,11 @@ namespace IraoAssignment.Server.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public CompanyController(ApplicationDbContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         [HttpGet]
