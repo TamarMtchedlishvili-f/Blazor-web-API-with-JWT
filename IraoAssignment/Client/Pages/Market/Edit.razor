@@ -1,0 +1,29 @@
+﻿@page "/Market/edit/{MarketId:int}"
+@using IraoAssignment.Shared
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+
+<h3>Edit</h3>
+
+<Form ButtonText="Update" Market="market"
+      OnValidSubmit="@EditMarket" />
+
+@code {
+    [Parameter] public int MarketId { get; set; }
+    
+    Market market = new Market();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        market = await http.GetFromJsonAsync<Market>($"api/Market/{MarketId}");
+    }
+
+    async Task EditMarket()
+    {
+        await http.PutAsJsonAsync("api/Market", market);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("Market");
+
+    }
+}

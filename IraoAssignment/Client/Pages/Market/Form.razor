@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Components
+@using System.Net
+@using IraoAssignment.Shared
+
+<EditForm Model="@Market" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <div class="form-group">
+        <label>Id :</label>
+        <div>
+            <InputNumber @bind-Value="@Market.Id"/>
+            <ValidationMessage For="@(() => Market.Id)"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Market Name :</label>
+        <div>
+            <InputText @bind-Value="@Market.MarketName"/>
+            <ValidationMessage For="@(() => Market.MarketName)"/>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public Market Market { get; set; }
+
+    [Parameter]
+    public IEnumerable<Company> Company { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Save";
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+
+
+
+}

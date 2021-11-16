@@ -1,0 +1,66 @@
+﻿@page "/Market2"
+@using IraoAssignment.Shared
+@inject HttpClient client
+@inject IJSRuntime js
+
+<h3>Markets</h3>
+@* <small>Add as many Markets as you wish.</small> *@
+<div class="form-group">
+    <a class="btn btn-success" href="Market/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+
+@if (Markets == null)
+{
+    <text>Loading...</text>
+}
+else if (Markets.Length == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Market Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (Market market in Markets)
+        {
+            <tr>
+                <td>@market.Id</td>
+                <td>@market.MarketName</td>
+                <td>
+                    <a class="btn btn-success" href="Market/edit/@market.Id">Edit</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(market.Id))">Delete</button>
+                </td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    Market[] Markets { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Markets = await client.GetFromJsonAsync<Market[]>("api/Market");
+    }
+
+    async Task Delete(int MarketId)
+    {
+        var market = Markets.First(x => x.Id == MarketId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {market.MarketName}'s ({market.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/Market/{MarketId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

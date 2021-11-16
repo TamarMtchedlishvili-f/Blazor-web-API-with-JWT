@@ -1,0 +1,107 @@
+﻿@page "/Market"
+@using IraoAssignment.Shared
+
+@inject HttpClient client
+@inject IJSRuntime js
+@inject NavigationManager uriHelper
+
+<h1>Markets</h1>
+
+@* <p>Markets! 😲</p> *@
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow"/>
+<RadzenDataGrid @ref=MarketsGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true"
+                EditMode="DataGridEditMode.Single" Data="@Markets" TItem="Market" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        @* <RadzenDataGridColumn TItem="Market" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center"/> *@
+
+        @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
+        <RadzenDataGridColumn TItem="Market" Property="Id" Title="Id"/>
+        <RadzenDataGridColumn TItem="Market" Property="MarketName" Title="Market Name"/>
+        <RadzenDataGridColumn TItem="Market" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+            <Template Context="order">
+                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton Icon="save" Size="ButtonSize.Small" Click="@((args) => SaveRow(order))">
+                </RadzenButton>
+                <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Market" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+            <Template Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Market> MarketsGrid;
+
+    Market[] Markets { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Markets = await client.GetFromJsonAsync<Market[]>("api/market");
+    }
+
+    async Task SaveRow(Market market)
+    {
+        await MarketsGrid.UpdateRow(market);
+    }
+
+    async Task DeleteRow(Market market)
+    {
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {market.MarketName}'s ({market.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/market/{market.Id}");
+            await OnInitializedAsync();
+        }
+    }
+
+    void CancelEdit(Market market)
+    {
+        MarketsGrid.CancelEditRow(market);
+    }
+
+    async Task InsertRow()
+    {
+        uriHelper.NavigateTo($"market/create");
+    }
+
+    void EditRow(Market market)
+    {
+        uriHelper.NavigateTo($"market/edit/{market.Id}");
+    }
+
+    async Task OnCreateRow(Market market)
+    {
+        await client.PostAsJsonAsync("api/market", market);
+    }
+
+    async Task OnUpdateRow(Market market)
+    {
+        await client.PutAsJsonAsync("api/market", market);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("market");
+    }
+
+    async Task Delete(int marketId)
+    {
+        var market = Markets.First(x => x.Id == marketId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {market.MarketName}'s ({market.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/market/{marketId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

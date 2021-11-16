@@ -10,9 +10,9 @@ namespace IraoAssignment.Server.Controllers
     [ApiController]
     public class MarketController : ControllerBase
     {
-        readonly ApplicationDbContext _context;
+        readonly IraoAssignmentDbContext _context;
 
-        public MarketController(ApplicationDbContext context)
+        public MarketController(IraoAssignmentDbContext context)
         {
             this._context = context;
         }
