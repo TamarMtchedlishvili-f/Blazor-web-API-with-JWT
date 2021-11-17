@@ -13,11 +13,19 @@
 <RadzenDataGrid @ref=MarketsGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true"
                 EditMode="DataGridEditMode.Single" Data="@Markets" TItem="Market" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
     <Columns>
-        @* <RadzenDataGridColumn TItem="Market" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center"/> *@
 
         @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
         <RadzenDataGridColumn TItem="Market" Property="Id" Title="Id"/>
-        <RadzenDataGridColumn TItem="Market" Property="MarketName" Title="Market Name"/>
+
+        <RadzenDataGridColumn TItem="Market" Property="MarketName" Title="Market Name">
+            <Template Context="market">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", market.MarketName)
+            </Template>
+            <EditTemplate Context="market">
+                <RadzenTextBox @bind-Value="market.MarketName" Style="width:100%"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
         <RadzenDataGridColumn TItem="Market" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
             <Template Context="order">
                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
@@ -74,12 +82,14 @@
 
     async Task InsertRow()
     {
-        uriHelper.NavigateTo($"market/create");
+    // uriHelper.NavigateTo($"market/create");
+        MarketsGrid.InsertRow(new Market());
     }
 
     void EditRow(Market market)
     {
-        uriHelper.NavigateTo($"market/edit/{market.Id}");
+    // uriHelper.NavigateTo($"market/edit/{market.Id}");
+        MarketsGrid.EditRow(market);
     }
 
     async Task OnCreateRow(Market market)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using IraoAssignment.Server.Data;
 using IraoAssignment.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,8 @@ namespace IraoAssignment.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            var temp = _context.MarketWithCompanyAndPrices.ToList();
+            
             var marketWithCompanyAndPrices = await _context.MarketWithCompanyAndPrices.ToListAsync();
             return Ok(marketWithCompanyAndPrices);
         }

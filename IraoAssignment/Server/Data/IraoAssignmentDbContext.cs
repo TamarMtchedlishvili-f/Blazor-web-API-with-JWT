@@ -68,35 +68,95 @@ namespace IraoAssignment.Server.Data
                 {
                     Id = 1,
                     Company = context.Companies.Single(c => c.Id == 1),
-                    Market = context.Markets.Single(m => m.Id == 1)
+                    Market = context.Markets.Single(m => m.Id == 1),
+                    CompanyPrice = 200
                 },
                 new MarketWithCompanyAndPrice
                 {
                     Id = 2,
                     Company = context.Companies.Single(c => c.Id == 2),
+                    Market = context.Markets.Single(m => m.Id == 1)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 3,
+                    Company = context.Companies.Single(c => c.Id == 3),
+                    Market = context.Markets.Single(m => m.Id == 1)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 4,
+                    Company = context.Companies.Single(c => c.Id == 4),
+                    Market = context.Markets.Single(m => m.Id == 1)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 5,
+                    Company = context.Companies.Single(c => c.Id == 5),
+                    Market = context.Markets.Single(m => m.Id == 1)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 6,
+                    Company = context.Companies.Single(c => c.Id == 1),
                     Market = context.Markets.Single(m => m.Id == 2)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 7,
+                    Company = context.Companies.Single(c => c.Id == 2),
+                    Market = context.Markets.Single(m => m.Id == 2)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 8,
+                    Company = context.Companies.Single(c => c.Id == 3),
+                    Market = context.Markets.Single(m => m.Id == 2)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 9,
+                    Company = context.Companies.Single(c => c.Id == 4),
+                    Market = context.Markets.Single(m => m.Id == 2)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 10,
+                    Company = context.Companies.Single(c => c.Id == 5),
+                    Market = context.Markets.Single(m => m.Id == 2)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 11,
+                    Company = context.Companies.Single(c => c.Id == 1),
+                    Market = context.Markets.Single(m => m.Id == 3)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 12,
+                    Company = context.Companies.Single(c => c.Id == 2),
+                    Market = context.Markets.Single(m => m.Id == 3)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 13,
+                    Company = context.Companies.Single(c => c.Id == 3),
+                    Market = context.Markets.Single(m => m.Id == 3)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 14,
+                    Company = context.Companies.Single(c => c.Id == 4),
+                    Market = context.Markets.Single(m => m.Id == 3)
+                },
+                new MarketWithCompanyAndPrice
+                {
+                    Id = 15,
+                    Company = context.Companies.Single(c => c.Id == 5),
+                    Market = context.Markets.Single(m => m.Id == 3)
                 }
-                // ,
-                // new MarketWithCompanyAndPrice
-                // {
-                //     Id = 2,
-                //     CompanyName = "Company2"
-                // },
-                // new MarketWithCompanyAndPrice
-                // {
-                //     Id = 3,
-                //     CompanyName = "Company3"
-                // },
-                // new MarketWithCompanyAndPrice
-                // {
-                //     Id = 4,
-                //     CompanyName = "Company4"
-                // },
-                // new MarketWithCompanyAndPrice
-                // {
-                //     Id = 5,
-                //     CompanyName = "Company5"
-                // }
+
+
             );
 
 

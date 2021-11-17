@@ -13,22 +13,26 @@
 <RadzenDataGrid @ref=MarketWithCompanyAndPricesGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true"
                 EditMode="DataGridEditMode.Single" Data="@MarketWithCompanyAndPrices" TItem="MarketWithCompanyAndPrice" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
     <Columns>
-        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center"/> *@
 
         @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
-        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="MarketName" Title="Market Name"/> *@
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Title="Id"/>
-        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="MarketName" Title="Market Name">
+
+        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="Market.MarketName" Title="Market Name">
             <EditTemplate Context="marketWithCompanyAndPrice">
-                <RadzenDropDown @bind-Value="marketWithCompanyAndPrice.Market" Data="@markets" TextProperty="Market" ValueProperty="Market" Style="width:100%"/>
+                <RadzenDropDown TValue="Market" @bind-Value="marketWithCompanyAndPrice.Market" Placeholder="Select Market" AllowFiltering="true" Data="@markets" TextProperty="Market" ValueProperty="Id" Style="width:100%"/>
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="CompanyName" Title="Company Name">
-                    <EditTemplate Context="marketWithCompanyAndPrice">
-                        <RadzenDropDown @bind-Value="marketWithCompanyAndPrice.Company" Data="@companies" TextProperty="Company" ValueProperty="Company" Style="width:100%"/>
-                    </EditTemplate>
-                </RadzenDataGridColumn>
-        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="CompanyPrice" Title="Company Price"/> *@
+
+
+        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="Company.CompanyName" Title="Company Name">
+            <EditTemplate Context="marketWithCompanyAndPrice">
+                <RadzenDropDown @bind-Value="marketWithCompanyAndPrice.Company" Data="@companies" TextProperty="Company" ValueProperty="Company" Style="width:100%"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+
+        @* <RadzenDropDown TValue="string" @bind-Value="Market" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
+
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="CompanyPrice" Title="Company Price">
             <Template Context="marketWithCompanyAndPrice">
                 @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", marketWithCompanyAndPrice.CompanyPrice)
@@ -37,7 +41,7 @@
                 <RadzenNumeric @bind-Value="marketWithCompanyAndPrice.CompanyPrice" Style="width:100%"/>
             </EditTemplate>
         </RadzenDataGridColumn>
-        @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
+        
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
             <Template Context="order">
                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
@@ -50,13 +54,14 @@
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
-            <Template Context="order">
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))" @onclick:stopPropagation="true">
+        
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="marketWithCompanyAndPrice" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+            <Template Context="marketWithCompanyAndPrice">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(marketWithCompanyAndPrice))" @onclick:stopPropagation="true">
                 </RadzenButton>
             </Template>
-            <EditTemplate Context="order">
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))">
+            <EditTemplate Context="marketWithCompanyAndPrice">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(marketWithCompanyAndPrice))">
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
@@ -69,6 +74,7 @@
     MarketWithCompanyAndPrice[] MarketWithCompanyAndPrices { get; set; }
     IEnumerable<Market> markets;
     IEnumerable<Company> companies;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,7 +108,7 @@
 
     void EditRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
     {
-        // uriHelper.NavigateTo($"marketWithCompanyAndPrice/edit/{marketWithCompanyAndPrice.Id}");
+    // uriHelper.NavigateTo($"marketWithCompanyAndPrice/edit/{marketWithCompanyAndPrice.Id}");
         MarketWithCompanyAndPricesGrid.EditRow(marketWithCompanyAndPrice);
     }
 
@@ -116,7 +122,6 @@
         await client.PutAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
         await js.InvokeVoidAsync("alert", $"Updated Successfully!");
         uriHelper.NavigateTo("marketWithCompanyAndPrice");
-        
     }
 
     async Task Delete(int marketWithCompanyAndPriceId)

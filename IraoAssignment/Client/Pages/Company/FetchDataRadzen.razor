@@ -17,8 +17,16 @@
 
         @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
         <RadzenDataGridColumn TItem="Company" Property="Id" Title="Id"/>
-        <RadzenDataGridColumn TItem="Company" Property="CompanyName" Title="Company Name"/>
-        @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
+
+        <RadzenDataGridColumn TItem="Company" Property="CompanyName" Title="Company Name">
+            <Template Context="company">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", company.CompanyName)
+            </Template>
+            <EditTemplate Context="company">
+                <RadzenTextBox @bind-Value="company.CompanyName" Style="width:100%"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        
         <RadzenDataGridColumn TItem="Company" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
             <Template Context="order">
                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
@@ -48,8 +56,6 @@
     RadzenDataGrid<Company> CompaniesGrid;
 
     Company[] Companies { get; set; }
-    // IEnumerable<Market> markets;
-    string Id;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,12 +83,14 @@
 
     async Task InsertRow()
     {
-        uriHelper.NavigateTo($"company/create");
+        //uriHelper.NavigateTo($"company/create");
+        CompaniesGrid.InsertRow(new Company());
     }
 
     void EditRow(Company company)
     {
-        uriHelper.NavigateTo($"company/edit/{company.Id}");
+        CompaniesGrid.EditRow(company);
+        // uriHelper.NavigateTo($"company/edit/{company.Id}");
     }
 
     async Task OnCreateRow(Company company)
