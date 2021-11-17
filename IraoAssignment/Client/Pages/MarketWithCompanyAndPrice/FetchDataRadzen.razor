@@ -1,0 +1,132 @@
+﻿@page "/MarketWithCompanyAndPrice"
+@using IraoAssignment.Shared
+
+@inject HttpClient client
+@inject IJSRuntime js
+@inject NavigationManager uriHelper
+
+
+<h1>Markets with Companies and Prices</h1>
+
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow"/>
+<RadzenDataGrid @ref=MarketWithCompanyAndPricesGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true"
+                EditMode="DataGridEditMode.Single" Data="@MarketWithCompanyAndPrices" TItem="MarketWithCompanyAndPrice" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="70px" TextAlign="TextAlign.Center"/> *@
+
+        @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
+        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="MarketName" Title="Market Name"/> *@
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Title="Id"/>
+        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="MarketName" Title="Market Name">
+            <EditTemplate Context="marketWithCompanyAndPrice">
+                <RadzenDropDown @bind-Value="marketWithCompanyAndPrice.Market" Data="@markets" TextProperty="Market" ValueProperty="Market" Style="width:100%"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="CompanyName" Title="Company Name">
+                    <EditTemplate Context="marketWithCompanyAndPrice">
+                        <RadzenDropDown @bind-Value="marketWithCompanyAndPrice.Company" Data="@companies" TextProperty="Company" ValueProperty="Company" Style="width:100%"/>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+        @* <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="CompanyPrice" Title="Company Price"/> *@
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="CompanyPrice" Title="Company Price">
+            <Template Context="marketWithCompanyAndPrice">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", marketWithCompanyAndPrice.CompanyPrice)
+            </Template>
+            <EditTemplate Context="marketWithCompanyAndPrice">
+                <RadzenNumeric @bind-Value="marketWithCompanyAndPrice.CompanyPrice" Style="width:100%"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+            <Template Context="order">
+                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton Icon="save" Size="ButtonSize.Small" Click="@((args) => SaveRow(order))">
+                </RadzenButton>
+                <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+            <Template Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<MarketWithCompanyAndPrice> MarketWithCompanyAndPricesGrid;
+
+    MarketWithCompanyAndPrice[] MarketWithCompanyAndPrices { get; set; }
+    IEnumerable<Market> markets;
+    IEnumerable<Company> companies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        MarketWithCompanyAndPrices = await client.GetFromJsonAsync<MarketWithCompanyAndPrice[]>("api/marketWithCompanyAndPrice");
+    }
+
+    async Task SaveRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        await MarketWithCompanyAndPricesGrid.UpdateRow(marketWithCompanyAndPrice);
+    }
+
+    async Task DeleteRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {marketWithCompanyAndPrice.Company}'s ({marketWithCompanyAndPrice.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPrice.Id}");
+            await OnInitializedAsync();
+        }
+    }
+
+    void CancelEdit(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        MarketWithCompanyAndPricesGrid.CancelEditRow(marketWithCompanyAndPrice);
+    }
+
+    async Task InsertRow()
+    {
+    // uriHelper.NavigateTo($"marketWithCompanyAndPrice/create");
+        MarketWithCompanyAndPricesGrid.InsertRow(new MarketWithCompanyAndPrice());
+    }
+
+    void EditRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        // uriHelper.NavigateTo($"marketWithCompanyAndPrice/edit/{marketWithCompanyAndPrice.Id}");
+        MarketWithCompanyAndPricesGrid.EditRow(marketWithCompanyAndPrice);
+    }
+
+    async Task OnCreateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        await client.PostAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
+    }
+
+    async Task OnUpdateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
+    {
+        await client.PutAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("marketWithCompanyAndPrice");
+        
+    }
+
+    async Task Delete(int marketWithCompanyAndPriceId)
+    {
+        var marketWithCompanyAndPrice = MarketWithCompanyAndPrices.First(x => x.Id == marketWithCompanyAndPriceId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {marketWithCompanyAndPrice.Company}'s ({marketWithCompanyAndPrice.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPriceId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

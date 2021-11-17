@@ -24,10 +24,8 @@ else
         <thead>
         <tr>
             <th>Id</th>
-            <th>Company Name</th>
-            <th>Company Price</th>
-            <th>Market Name</th>
-        <th></th>
+            <th>Company Name</th> 
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -36,8 +34,6 @@ else
             <tr>
                 <td>@company.Id</td>
                 <td>@company.CompanyName</td>
-                <td>@company.CompanyPrice</td>
-                <td>@company.MarketName</td>
                 <td>
                     <a class="btn btn-success" href="Company/edit/@company.Id">Edit</a>
                     <button class="btn btn-danger" @onclick="@(() => Delete(company.Id))">Delete</button>

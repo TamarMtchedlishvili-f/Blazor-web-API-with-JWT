@@ -14,7 +14,7 @@
     
     Company company = new Company();
 
-    protected async override Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         company = await http.GetFromJsonAsync<Company>($"api/Company/{CompanyId}");
     }

@@ -1,0 +1,29 @@
+﻿@page "/MarketWithCompanyAndPrice/edit/{MarketWithCompanyAndPriceId:int}"
+@using IraoAssignment.Shared
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+
+<h3>Edit</h3>
+
+<Form ButtonText="Update" MarketWithCompanyAndPrice="marketWithCompanyAndPrice"
+      OnValidSubmit="@EditMarketWithCompanyAndPrice" />
+
+@code {
+    [Parameter] public int MarketWithCompanyAndPriceId { get; set; }
+    
+    MarketWithCompanyAndPrice marketWithCompanyAndPrice = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        marketWithCompanyAndPrice = await http.GetFromJsonAsync<MarketWithCompanyAndPrice>($"api/MarketWithCompanyAndPrice/{MarketWithCompanyAndPriceId}");
+    }
+
+    async Task EditMarketWithCompanyAndPrice()
+    {
+        await http.PutAsJsonAsync("api/MarketWithCompanyAndPrice", marketWithCompanyAndPrice);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("MarketWithCompanyAndPrice");
+
+    }
+}

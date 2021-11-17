@@ -19,14 +19,16 @@
         </div>
     </div>
     <div class="form-group ">
-        <div>
-            <label>Company Price :</label>
             <div>
-                <InputNumber @bind-Value="@Company.CompanyPrice"/>
-                <ValidationMessage For="@(() => Company.CompanyPrice)"/>
+                <label>Market Name :</label>
+                <div>
+                    <RadzenDropDown AllowClear="true" TValue="string" Style="width:300px" 
+                                                    Data="@(Market?.Select(m => m.MarketName).Distinct())"
+                                                    Change=@(args => OnChange(args, "DropDown")) />
+                </div>
             </div>
-        </div>
-    </div>
+        </div> @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
+
     @* <div class="form-group "> *@
     @*     <div> *@
     @*         <label>Market Name :</label> *@
@@ -57,8 +59,13 @@
 
     [Parameter]
     public EventCallback OnValidSubmit { get; set; }
+    
 
+    void OnChange(object value, string name)
+    {
+        var str = value is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)value) : value;
 
-
+        // console.Log($"{name} value changed to {str}");
+    }
 
 }

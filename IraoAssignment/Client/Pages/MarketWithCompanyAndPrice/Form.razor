@@ -1,0 +1,55 @@
+﻿@using Microsoft.AspNetCore.Components
+@using System.Net
+@using IraoAssignment.Shared
+
+<EditForm Model="@MarketWithCompanyAndPrice" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <div class="form-group">
+        <label>Select Company() :</label>
+        <div>
+            <RadzenDropDown @bind-Value="@MarketWithCompanyAndPrice.Company"/>
+            <ValidationMessage For="@(() => MarketWithCompanyAndPrice.Company)"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Select Market() :</label>
+        <div>
+            <RadzenDropDown @bind-Value="@MarketWithCompanyAndPrice.Market"/>
+            <ValidationMessage For="@(() => MarketWithCompanyAndPrice.Market)"/>
+        </div>
+    </div>
+       <div class="form-group">
+            <label>Write Company Price() :</label>
+            <div>
+                <InputNumber @bind-Value="@MarketWithCompanyAndPrice.CompanyPrice"/>
+                <ValidationMessage For="@(() => MarketWithCompanyAndPrice.CompanyPrice)"/>
+            </div>
+        </div>
+    
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public MarketWithCompanyAndPrice MarketWithCompanyAndPrice { get; set; }
+
+    [Parameter]
+    public IEnumerable<Market> Market { get; set; }
+
+    [Parameter]
+    public IEnumerable<Company> Company { get; set; }
+
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Save";
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+
+}

@@ -1,0 +1,18 @@
+﻿@page "/MarketWithCompanyAndPrice/create"
+@using IraoAssignment.Shared
+@inject HttpClient http
+@inject NavigationManager uriHelper
+
+<h3>Create</h3>
+
+<Form ButtonText="Add" MarketWithCompanyAndPrice="@marketWithCompanyAndPrice"
+            OnValidSubmit="@CreateMarketWithCompanyAndPrice" />
+
+@code {
+    MarketWithCompanyAndPrice marketWithCompanyAndPrice = new MarketWithCompanyAndPrice();
+    async Task CreateMarketWithCompanyAndPrice()
+    {
+        await http.PostAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
+        uriHelper.NavigateTo("marketWithCompanyAndPrice");
+    }
+}

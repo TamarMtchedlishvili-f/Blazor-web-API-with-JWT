@@ -18,8 +18,7 @@
         @* ეს არის იმ ველების სია, რაც ჩანს ლისთვიუზე *@
         <RadzenDataGridColumn TItem="Company" Property="Id" Title="Id"/>
         <RadzenDataGridColumn TItem="Company" Property="CompanyName" Title="Company Name"/>
-        <RadzenDataGridColumn TItem="Company" Property="CompanyPrice" Title="Company Price" Width="150px"/>
-        <RadzenDataGridColumn TItem="Company" Property="MarketName" Title="Market Name"/>
+        @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
         <RadzenDataGridColumn TItem="Company" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
             <Template Context="order">
                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
@@ -49,6 +48,8 @@
     RadzenDataGrid<Company> CompaniesGrid;
 
     Company[] Companies { get; set; }
+    // IEnumerable<Market> markets;
+    string Id;
 
     protected override async Task OnInitializedAsync()
     {
