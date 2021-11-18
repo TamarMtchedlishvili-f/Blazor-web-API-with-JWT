@@ -22,6 +22,9 @@ namespace IraoAssignment.Server.Controllers
         public async Task<IActionResult> Get()
         {
             var temp = _context.MarketWithCompanyAndPrices.ToList();
+
+            var companies = await _context.Companies.ToListAsync();
+            var markets = await _context.Markets.ToListAsync();
             
             var marketWithCompanyAndPrices = await _context.MarketWithCompanyAndPrices.ToListAsync();
             return Ok(marketWithCompanyAndPrices);

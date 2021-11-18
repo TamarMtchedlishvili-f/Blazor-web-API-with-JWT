@@ -1,5 +1,6 @@
 ﻿@page "/MarketWithCompanyAndPrice"
 @using IraoAssignment.Shared
+@using System.Globalization
 
 @inject HttpClient client
 @inject IJSRuntime js
@@ -41,7 +42,7 @@
                 <RadzenNumeric @bind-Value="marketWithCompanyAndPrice.CompanyPrice" Style="width:100%"/>
             </EditTemplate>
         </RadzenDataGridColumn>
-        
+
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
             <Template Context="order">
                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
@@ -54,7 +55,7 @@
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
-        
+
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Context="marketWithCompanyAndPrice" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
             <Template Context="marketWithCompanyAndPrice">
                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Small" Click="@(args => DeleteRow(marketWithCompanyAndPrice))" @onclick:stopPropagation="true">
@@ -68,13 +69,109 @@
     </Columns>
 </RadzenDataGrid>
 
+@*--------------------------------------------------------------------------------------------------------------------------------------------------------*@
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 my-5">
+            <RadzenChart>
+                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company5" LineType="LineType.Dashed" ValueProperty="Price"/>
+                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company4" LineType="LineType.Dashed" ValueProperty="Price"/>
+                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company3" LineType="LineType.Dashed" ValueProperty="Price"/>
+                <RadzenColumnSeries Data="@revenue2020" CategoryProperty="Market" Title="Company2" LineType="LineType.Dashed" ValueProperty="Price"/>
+                <RadzenColumnSeries Data="@Company1" CategoryProperty="Market" Title="Company1" ValueProperty="Price"/>
+                <RadzenColumnOptions Radius="5"/>
+                <RadzenValueAxis Formatter="@FormatAsUSD">
+                    <RadzenGridLines Visible="true"/>
+                    <RadzenAxisTitle Text="Company Price in USD"/>
+                </RadzenValueAxis>
+            </RadzenChart>
+        </div>
+    </div>
+</div>
+
+
 @code {
+
+    class DataItem
+    {
+   
+        public string Market { get; set; }
+        public double Price { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    DataItem[] Company1 = new DataItem[]
+    {
+        new DataItem
+        {
+            Market = "Market1",
+            Price = 234000
+        },
+        new DataItem
+        {
+            Market = "Market2",
+            Price = 284000
+        },
+        new DataItem
+        {
+            Market = "Market3",
+            Price = 274000
+        },
+    };
+
+    DataItem[] revenue2020 = new DataItem[]
+    {
+        new DataItem
+        {
+            Market = "Market1",
+            Price = 254000
+        },
+        new DataItem
+        {
+            Market = "Market2",
+            Price = 324000
+        },
+        new DataItem
+        {
+            Market = "Market3",
+            Price = 354000
+        },
+    };
+
+    DataItem[] revenue2021 = new DataItem[]
+    {
+        new DataItem
+        {
+            Market = "Market1",
+            Price = 254000
+        },
+        new DataItem
+        {
+            Market = "Market2",
+            Price = 324000
+        },
+        new DataItem
+        {
+            Market = "Market3",
+            Price = 354000
+        },
+    };
+
+    //------------------------------------------------------------------------------------
+
     RadzenDataGrid<MarketWithCompanyAndPrice> MarketWithCompanyAndPricesGrid;
 
     MarketWithCompanyAndPrice[] MarketWithCompanyAndPrices { get; set; }
     IEnumerable<Market> markets;
     IEnumerable<Company> companies;
-
+    IEnumerable<DataItemT> _dataItemTs;
+    DataItemT DataItemT;
+    static IEnumerable<MarketWithCompanyAndPrice> _marketWithCompanyAndPrices;
 
     protected override async Task OnInitializedAsync()
     {
