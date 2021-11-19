@@ -148,7 +148,7 @@
                                 => new DataItem($"Company{companyId}", $"Market{marketId}", random()))));
         }
 
-        Observable.Interval(TimeSpan.FromSeconds(1))
+        Observable.Interval(TimeSpan.FromSeconds(5))
             .Select(l => Observable.FromAsync(repopulateRevenues))
     //Ensure that the results are serialized
             .Concat()
