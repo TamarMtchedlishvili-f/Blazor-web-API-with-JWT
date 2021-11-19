@@ -69,7 +69,6 @@ namespace IraoAssignment.Server.Data
                     Id = 1,
                     Company = context.Companies.Single(c => c.Id == 1),
                     Market = context.Markets.Single(m => m.Id == 1),
-                    CompanyPrice = 200
                 },
                 new MarketWithCompanyAndPrice
                 {

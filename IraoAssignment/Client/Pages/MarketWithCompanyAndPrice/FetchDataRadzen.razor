@@ -9,9 +9,11 @@
 
 
 <h1>Markets with Companies and Prices</h1>
+<p1>Press the edit button next to the column "Company Price" and enter the price to see it on the chart 🙂</p1>
+<br>
+<br>
 
-
-<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow"/>
+@* <RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="Add" Click="@InsertRow"/> *@
 <RadzenDataGrid @ref=MarketWithCompanyAndPricesGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="7" AllowPaging="true" AllowSorting="true"
                 EditMode="DataGridEditMode.Single" Data="@MarketWithCompanyAndPrices" TItem="MarketWithCompanyAndPrice" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
     <Columns>
