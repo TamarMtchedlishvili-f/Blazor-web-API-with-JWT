@@ -185,7 +185,7 @@
 
     async Task DeleteRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
     {
-        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {marketWithCompanyAndPrice.Company}'s ({marketWithCompanyAndPrice.Id}) Record?"))
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete record?"))
         {
             await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPrice.Id}");
             await OnInitializedAsync();
@@ -224,7 +224,7 @@
     async Task Delete(int marketWithCompanyAndPriceId)
     {
         var marketWithCompanyAndPrice = MarketWithCompanyAndPrices.First(x => x.Id == marketWithCompanyAndPriceId);
-        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {marketWithCompanyAndPrice.Company}'s ({marketWithCompanyAndPrice.Id}) Record?"))
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete record?"))
         {
             await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPriceId}");
             await OnInitializedAsync();
