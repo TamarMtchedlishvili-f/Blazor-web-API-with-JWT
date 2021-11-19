@@ -1,6 +1,7 @@
 ﻿@page "/MarketWithCompanyAndPrice"
 @using IraoAssignment.Shared
 @using System.Globalization
+@using System.Reactive.Linq
 
 @inject HttpClient client
 @inject IJSRuntime js
@@ -74,12 +75,12 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12 my-5">
-            <RadzenChart>
-                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company5" LineType="LineType.Dashed" ValueProperty="Price"/>
-                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company4" LineType="LineType.Dashed" ValueProperty="Price"/>
-                <RadzenColumnSeries Data="@revenue2021" CategoryProperty="Market" Title="Company3" LineType="LineType.Dashed" ValueProperty="Price"/>
-                <RadzenColumnSeries Data="@revenue2020" CategoryProperty="Market" Title="Company2" LineType="LineType.Dashed" ValueProperty="Price"/>
-                <RadzenColumnSeries Data="@Company1" CategoryProperty="Market" Title="Company1" ValueProperty="Price"/>
+            <RadzenChart @ref=@chart>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company5)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company5" ValueProperty="@nameof(DataItem.Price)"/>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company4)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company4" ValueProperty="@nameof(DataItem.Price)"/>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company3)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company3" ValueProperty="@nameof(DataItem.Price)"/>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company2)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company2" ValueProperty="@nameof(DataItem.Price)"/>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company1)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company1" ValueProperty="@nameof(DataItem.Price)"/>
                 <RadzenColumnOptions Radius="5"/>
                 <RadzenValueAxis Formatter="@FormatAsUSD">
                     <RadzenGridLines Visible="true"/>
@@ -93,76 +94,34 @@
 
 @code {
 
+    public static class Companies
+    {
+        public const string Company1 = nameof(Company1);
+        public const string Company2 = nameof(Company2);
+        public const string Company3 = nameof(Company3);
+        public const string Company4 = nameof(Company4);
+        public const string Company5 = nameof(Company5);
+    }
+
     class DataItem
     {
-        public string Market { get; set; }
-        public MarketWithCompanyAndPrice MCP { get; set; }
-        public decimal Price { get; set; }
+        public DataItem(string company, string market, decimal price)
+        {
+            Company = company;
+            Market = market;
+            Price = price;
+        }
+
+        public string Market { get; }
+        public string Company { get; }
+        public decimal Price { get; }
     }
 
-    string FormatAsUSD(object value)
-    {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
-    }
+    string FormatAsUSD(object value) => value is double d ? d.ToString("C0", CultureInfo.CreateSpecificCulture("en-US")) : value.ToString();
 
-    DataItem[] Company1 = new DataItem[]
-    {
-        new DataItem
-        {
-            Market = "Market1",
-            Price = 5600
-             
-        },
-        new DataItem
-        {
-            Market = "Market2",
-            Price = 284000
-        },
-        new DataItem
-        {
-            Market = "Market3",
-            Price = 274000
-        },
-    };
+    readonly List<DataItem> revenues = new();
 
-    DataItem[] revenue2020 = new DataItem[]
-    {
-        new DataItem
-        {
-            Market = "Market1",
-            Price = 254000
-        },
-        new DataItem
-        {
-            Market = "Market2",
-            Price = 324000
-        },
-        new DataItem
-        {
-            Market = "Market3",
-            Price = 354000
-        },
-    };
-    
-    DataItem[] revenue2021 = new DataItem[]
-    {
-        new DataItem
-        {
-            Market = "Market1",
-            Price = 254000
-        },
-        new DataItem
-        {
-            Market = "Market2",
-            Price = 324000
-        },
-        new DataItem
-        {
-            Market = "Market3",
-            Price = 354000
-        },
-    };
-
+    RadzenChart chart;
     //------------------------------------------------------------------------------------
 
     RadzenDataGrid<MarketWithCompanyAndPrice> MarketWithCompanyAndPricesGrid;
@@ -170,65 +129,64 @@
     MarketWithCompanyAndPrice[] MarketWithCompanyAndPrices { get; set; }
     IEnumerable<Market> markets;
     IEnumerable<Company> companies;
-    // IEnumerable<DataItemT> _dataItemTs;
-    // DataItemT DataItemT;
 
     protected override async Task OnInitializedAsync()
     {
-        MarketWithCompanyAndPrices = await client.GetFromJsonAsync<MarketWithCompanyAndPrice[]>("api/marketWithCompanyAndPrice");
+        async Task repopulateRevenues()
+        {
+            int random() => new Random().Next(50, 100);
+            revenues.Clear();
+
+            var data = await FetchData();
+            //
+            // revenues.AddRange(data.Select(d => new DataItem(d.Company.CompanyName, d.Market.MarketName, d.CompanyPrice)));
+            // return;
+
+            revenues.AddRange(
+                Enumerable.Range(1, 5)
+                    .SelectMany(companyId
+                        => Enumerable.Range(1, 3)
+                            .Select(marketId
+                                => new DataItem($"Company{companyId}", $"Market{marketId}", random()))));
+        }
+
+        Observable.Interval(TimeSpan.FromSeconds(1))
+            .Subscribe(async _ =>
+            {
+                await repopulateRevenues();
+                await chart.Reload();
+            });
+
+        MarketWithCompanyAndPrices = (await FetchData()).ToArray();
     }
 
-    async Task SaveRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
-    {
-        await MarketWithCompanyAndPricesGrid.UpdateRow(marketWithCompanyAndPrice);
-    }
+        const string apiMarketWithCompanyAndPrice = "api/marketWithCompanyAndPrice";
+
+    async Task<MarketWithCompanyAndPrice[]> FetchData() => await client.GetFromJsonAsync<MarketWithCompanyAndPrice[]>(apiMarketWithCompanyAndPrice);
+
+    async Task SaveRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await MarketWithCompanyAndPricesGrid.UpdateRow(marketWithCompanyAndPrice);
 
     async Task DeleteRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
     {
-        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete record?"))
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete a record?"))
         {
-            await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPrice.Id}");
+            await client.DeleteAsync($"{apiMarketWithCompanyAndPrice}/{marketWithCompanyAndPrice.Id}");
             await OnInitializedAsync();
         }
     }
 
-    void CancelEdit(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
-    {
-        MarketWithCompanyAndPricesGrid.CancelEditRow(marketWithCompanyAndPrice);
-    }
+    void CancelEdit(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => MarketWithCompanyAndPricesGrid.CancelEditRow(marketWithCompanyAndPrice);
 
-    async Task InsertRow()
-    {
-    // uriHelper.NavigateTo($"marketWithCompanyAndPrice/create");
-        MarketWithCompanyAndPricesGrid.InsertRow(new MarketWithCompanyAndPrice());
-    }
+    async Task InsertRow() => await MarketWithCompanyAndPricesGrid.InsertRow(new MarketWithCompanyAndPrice());
 
-    void EditRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
-    {
-    // uriHelper.NavigateTo($"marketWithCompanyAndPrice/edit/{marketWithCompanyAndPrice.Id}");
-        MarketWithCompanyAndPricesGrid.EditRow(marketWithCompanyAndPrice);
-    }
+    async Task EditRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await MarketWithCompanyAndPricesGrid.EditRow(marketWithCompanyAndPrice);
 
-    async Task OnCreateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
-    {
-        await client.PostAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
-    }
+    async Task OnCreateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await client.PostAsJsonAsync(apiMarketWithCompanyAndPrice, marketWithCompanyAndPrice);
 
     async Task OnUpdateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
     {
-        await client.PutAsJsonAsync("api/marketWithCompanyAndPrice", marketWithCompanyAndPrice);
-        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
-        uriHelper.NavigateTo("marketWithCompanyAndPrice");
-    }
-
-    async Task Delete(int marketWithCompanyAndPriceId)
-    {
-        var marketWithCompanyAndPrice = MarketWithCompanyAndPrices.First(x => x.Id == marketWithCompanyAndPriceId);
-        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete record?"))
-        {
-            await client.DeleteAsync($"api/marketWithCompanyAndPrice/{marketWithCompanyAndPriceId}");
-            await OnInitializedAsync();
-        }
+        await client.PutAsJsonAsync(apiMarketWithCompanyAndPrice, marketWithCompanyAndPrice);
+    // uriHelper.NavigateTo("marketWithCompanyAndPrice");
     }
 
 }
