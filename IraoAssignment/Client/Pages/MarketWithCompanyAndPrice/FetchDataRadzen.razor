@@ -123,11 +123,13 @@
     RadzenDataGrid<MarketWithCompanyAndPrice> MarketWithCompanyAndPricesGrid;
 
     MarketWithCompanyAndPrice[] MarketWithCompanyAndPrices { get; set; }
-    IEnumerable<Market> markets;
-    IEnumerable<Company> companies;
+    IEnumerable<Market> markets { get; set; }
+    IEnumerable<Company> companies { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        markets = await FetchDataMarket();
+        companies = await FetchDataCompany();
         async Task repopulateRevenues()
         {
             int random() => new Random().Next(50, 100);
@@ -158,11 +160,14 @@
             .Subscribe();
 
         MarketWithCompanyAndPrices = (await FetchData()).ToArray();
+        
     }
 
         const string apiMarketWithCompanyAndPrice = "api/marketWithCompanyAndPrice";
 
     async Task<MarketWithCompanyAndPrice[]> FetchData() => await client.GetFromJsonAsync<MarketWithCompanyAndPrice[]>(apiMarketWithCompanyAndPrice);
+    Task<Market[]> FetchDataMarket() => client.GetFromJsonAsync<Market[]>("api/market");
+    Task<Company[]> FetchDataCompany() => client.GetFromJsonAsync<Company[]>("api/company");
 
     async Task SaveRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await MarketWithCompanyAndPricesGrid.UpdateRow(marketWithCompanyAndPrice);
 
@@ -183,10 +188,6 @@
 
     async Task OnCreateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await client.PostAsJsonAsync(apiMarketWithCompanyAndPrice, marketWithCompanyAndPrice);
 
-    async Task OnUpdateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice)
-    {
-        await client.PutAsJsonAsync(apiMarketWithCompanyAndPrice, marketWithCompanyAndPrice);
-    // uriHelper.NavigateTo("marketWithCompanyAndPrice");
-    }
+    async Task OnUpdateRow(MarketWithCompanyAndPrice marketWithCompanyAndPrice) => await client.PutAsJsonAsync(apiMarketWithCompanyAndPrice, marketWithCompanyAndPrice);
 
 }
