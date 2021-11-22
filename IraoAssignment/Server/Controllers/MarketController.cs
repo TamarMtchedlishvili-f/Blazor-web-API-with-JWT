@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using IraoAssignment.Server.Data;
 using IraoAssignment.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace IraoAssignment.Server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MarketController : ControllerBase

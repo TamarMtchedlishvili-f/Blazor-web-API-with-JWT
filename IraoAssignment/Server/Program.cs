@@ -4,9 +4,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using IraoAssignment.Server.Data;
+using IraoAssignment.Server.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IraoAssignment.Server
@@ -24,7 +27,16 @@ namespace IraoAssignment.Server
             //3. Get the instance of BoardGamesDBContext in our services layer
             var services = scope.ServiceProvider;
             // var context = services.GetRequiredService<BoardGamesDBContext>();
-
+            try
+            {
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                UserAndRoleDataInitializer.SeedData(userManager, roleManager);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
             //4. Call the DataGenerator to create sample data
             DataGenerator.Initialize(services);
 

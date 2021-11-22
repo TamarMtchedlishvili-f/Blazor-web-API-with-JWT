@@ -2,6 +2,10 @@
 @using IraoAssignment.Shared
 @using System.Globalization
 @using System.Reactive.Linq
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@attribute [Authorize]
 
 @inject HttpClient client
 @inject IJSRuntime js
@@ -18,28 +22,28 @@
                 EditMode="DataGridEditMode.Single" Data="@MarketWithCompanyAndPrices" TItem="MarketWithCompanyAndPrice" ColumnWidth="100px" LogicalFilterOperator="LogicalFilterOperator.Or" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
     <Columns>
 
-        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Title="Id"/>
+        <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="Id" Title="Id" />
 
         <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="Market.MarketName" Title="Market Name">
             <EditTemplate Context="marketWithCompanyAndPrice">
-                <RadzenDropDown TValue="Market" @bind-Value="marketWithCompanyAndPrice.Market" Placeholder="Select Market" AllowFiltering="true" Data="@markets" TextProperty="Market" ValueProperty="Id" Style="margin-bottom: 20px"/>
+                <RadzenDropDown TValue="Market" @bind-Value="marketWithCompanyAndPrice.Market" Placeholder="Select Market" AllowFiltering="true" Data="@markets" TextProperty="Market" ValueProperty="Id" Style="margin-bottom: 20px" />
             </EditTemplate>
         </RadzenDataGridColumn>
 
 
         <RadzenDataGridColumn Width="200px" TItem="MarketWithCompanyAndPrice" Property="Company.CompanyName" Title="Company Name">
             <EditTemplate Context="marketWithCompanyAndPrice">
-                <RadzenDropDown TValue="Company" @bind-Value="marketWithCompanyAndPrice.Company" Placeholder="Select Company" AllowFiltering="true" Data="@(companies)" TextProperty="Company" ValueProperty="Id" Style="margin-bottom: 20px"/>
+                <RadzenDropDown TValue="Company" @bind-Value="marketWithCompanyAndPrice.Company" Placeholder="Select Company" AllowFiltering="true" Data="@(companies)" TextProperty="Company" ValueProperty="Id" Style="margin-bottom: 20px" />
             </EditTemplate>
         </RadzenDataGridColumn>
 
-        
+
         <RadzenDataGridColumn TItem="MarketWithCompanyAndPrice" Property="CompanyPrice" Title="Company Price">
             <Template Context="marketWithCompanyAndPrice">
                 @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", marketWithCompanyAndPrice.CompanyPrice)
             </Template>
             <EditTemplate Context="marketWithCompanyAndPrice">
-                <RadzenNumeric @bind-Value="marketWithCompanyAndPrice.CompanyPrice" Style="width:100%"/>
+                <RadzenNumeric @bind-Value="marketWithCompanyAndPrice.CompanyPrice" Style="width:100%" />
             </EditTemplate>
         </RadzenDataGridColumn>
 
@@ -73,15 +77,15 @@
     <div class="row">
         <div class="col-sm-12 my-5">
             <RadzenChart @ref=@chart>
-                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company5)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company5" ValueProperty="@nameof(DataItem.Price)"/>
-                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company4)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company4" ValueProperty="@nameof(DataItem.Price)"/>
-                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company3)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company3" ValueProperty="@nameof(DataItem.Price)"/>
-                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company2)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company2" ValueProperty="@nameof(DataItem.Price)"/>
-                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company1)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company1" ValueProperty="@nameof(DataItem.Price)"/>
-                <RadzenColumnOptions Radius="5"/>
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company5)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company5" ValueProperty="@nameof(DataItem.Price)" />
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company4)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company4" ValueProperty="@nameof(DataItem.Price)" />
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company3)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company3" ValueProperty="@nameof(DataItem.Price)" />
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company2)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company2" ValueProperty="@nameof(DataItem.Price)" />
+                <RadzenColumnSeries Data="@revenues.Where(r => r.Company == Companies.Company1)" CategoryProperty="@nameof(DataItem.Market)" Title="@Companies.Company1" ValueProperty="@nameof(DataItem.Price)" />
+                <RadzenColumnOptions Radius="5" />
                 <RadzenValueAxis Formatter="@FormatAsUSD">
-                    <RadzenGridLines Visible="true"/>
-                    <RadzenAxisTitle Text="Company Price in USD"/>
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Company Price in USD" />
                 </RadzenValueAxis>
             </RadzenChart>
         </div>
@@ -138,9 +142,9 @@
             var data = await FetchData();
 
             revenues.AddRange(data.Select(d => new DataItem(d.Company.CompanyName, d.Market.MarketName, d.CompanyPrice)));
-            
-            
-            
+
+
+
             await chart.Reload();
             return;
 
@@ -154,16 +158,16 @@
 
         Observable.Interval(TimeSpan.FromSeconds(5))
             .Select(l => Observable.FromAsync(repopulateRevenues))
-    //Ensure that the results are serialized
+            //Ensure that the results are serialized
             .Concat()
-    //do what you will here with the results of the async method calls
+            //do what you will here with the results of the async method calls
             .Subscribe();
 
         MarketWithCompanyAndPrices = (await FetchData()).ToArray();
-        
+
     }
 
-        const string apiMarketWithCompanyAndPrice = "api/marketWithCompanyAndPrice";
+    const string apiMarketWithCompanyAndPrice = "api/marketWithCompanyAndPrice";
 
     async Task<MarketWithCompanyAndPrice[]> FetchData() => await client.GetFromJsonAsync<MarketWithCompanyAndPrice[]>(apiMarketWithCompanyAndPrice);
     Task<Market[]> FetchDataMarket() => client.GetFromJsonAsync<Market[]>("api/market");

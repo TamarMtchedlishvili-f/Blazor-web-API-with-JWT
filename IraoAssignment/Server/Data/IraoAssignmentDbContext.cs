@@ -1,24 +1,93 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using IdentityServer4.EntityFramework.Options;
+using IraoAssignment.Server.Models;
 using IraoAssignment.Shared;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace IraoAssignment.Server.Data
 {
+    public static class UserAndRoleDataInitializer
+    {
+        public static void SeedData(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            SeedRoles(roleManager);
+            SeedUsers(userManager);
+        }
+
+        private static void SeedUsers(UserManager<ApplicationUser> userManager)
+        {
+            var johnDoeEmail = "johndoe@localhost.com";
+            if (userManager.FindByEmailAsync(johnDoeEmail).Result == null)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = johnDoeEmail,
+                    Email = johnDoeEmail,
+                    EmailConfirmed = true
+                };
+                //user.FirstName = "John";
+                //user.LastName = "Doe";
+
+                var result = userManager.CreateAsync(user, "P@ssw0rd1!").Result;
+
+                if (result.Succeeded)
+                {
+                    userManager.AddToRoleAsync(user, Admin).Wait();
+                }
+            }
+        }
+
+        private const string Admin = nameof(Admin);
+        private static void SeedRoles(RoleManager<IdentityRole> roleManager)
+        {
+            if (roleManager.RoleExistsAsync(Admin).Result) return;
+
+            var role = new IdentityRole {Name = Admin};
+            var roleResult = roleManager.
+                CreateAsync(role).Result;
+        }
+    }
     public class DataGenerator
     {
+        public static void SeedUsers(UserManager<ApplicationUser> userManager)
+        {
+            return;
+
+            if (userManager.FindByEmailAsync("test@test.com").Result == null)
+            {
+                var user = new ApplicationUser()
+                {
+                    UserName = "test@test.com",
+                    Email = "test@test.com"
+                };
+
+                var result = userManager.CreateAsync(user, "testTEST1234!@#$").Result;
+
+                if (result.Succeeded)
+                {
+                    userManager.AddToRoleAsync(user, "Admin").Wait();
+                }
+            }
+        }
+
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            using var context = new IraoAssignmentDbContext(serviceProvider.GetRequiredService<DbContextOptions<IraoAssignmentDbContext>>());
+            using var context = new IraoAssignmentDbContext(serviceProvider.GetRequiredService<DbContextOptions<IraoAssignmentDbContext>>(), new OptionsWrapper<OperationalStoreOptions>(new OperationalStoreOptions()));
+
+            //context.Users.Add(new ApplicationUser());
 
             if (DynamicQueryableExtensions.Any(context.Markets)) return;
             context.Markets.AddRange(new Market
-                {
-                    Id = 1,
-                    MarketName = "Market1"
-                },
+            {
+                Id = 1,
+                MarketName = "Market1"
+            },
                 new Market
                 {
                     Id = 2,
@@ -59,7 +128,7 @@ namespace IraoAssignment.Server.Data
                     CompanyName = "Company5"
                 }
             );
-            
+
             context.SaveChanges();
 
             if (DynamicQueryableExtensions.Any(context.MarketWithCompanyAndPrices)) return;
@@ -158,31 +227,25 @@ namespace IraoAssignment.Server.Data
 
             );
 
-
             context.SaveChanges();
         }
     }
 
-    public class IraoAssignmentDbContext : DbContext
+    public class IraoAssignmentDbContext : ApiAuthorizationDbContext<ApplicationUser>
     {
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+        //public IraoAssignmentDbContext(DbContextOptions options,
+        //    IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
+        //{
+        //}
 
-            modelBuilder.Entity<Market>().HasData(
-                new Market
-                {
-                    Id = 1,
-                    MarketName = "Market1"
-                }
-            );
-            // SaveChanges();
-        }
-
-        public IraoAssignmentDbContext(DbContextOptions<IraoAssignmentDbContext> options) : base(options)
+        public IraoAssignmentDbContext(DbContextOptions<IraoAssignmentDbContext> options,
+            IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
-
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options
+                .UseInMemoryDatabase("MarketsAndCompanies");
         public DbSet<Company> Companies { get; set; }
         public DbSet<Market> Markets { get; set; }
         public DbSet<MarketWithCompanyAndPrice> MarketWithCompanyAndPrices { get; set; }

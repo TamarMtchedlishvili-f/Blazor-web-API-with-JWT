@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using IraoAssignment.Server.Data;
 using IraoAssignment.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace IraoAssignment.Server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CompanyController : ControllerBase
@@ -23,12 +25,14 @@ namespace IraoAssignment.Server.Controllers
             var devs = await _context.Companies.ToListAsync();
             return Ok(devs);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var company = await _context.Companies.FirstOrDefaultAsync(a=>a.Id ==id);
+            var company = await _context.Companies.FirstOrDefaultAsync(a => a.Id == id);
             return Ok(company);
         }
+
         [HttpPost]
         public async Task<IActionResult> Post(Company developer)
         {
@@ -53,6 +57,5 @@ namespace IraoAssignment.Server.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
-
     }
 }
