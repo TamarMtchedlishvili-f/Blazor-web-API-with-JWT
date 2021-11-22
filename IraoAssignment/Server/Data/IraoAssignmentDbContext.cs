@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -64,10 +65,10 @@ namespace IraoAssignment.Server.Data
 
             if (DynamicQueryableExtensions.Any(context.Markets)) return;
             context.Markets.AddRange(new Market
-                {
-                    Id = 1,
-                    MarketName = "Market1"
-                },
+            {
+                Id = 1,
+                MarketName = "Market1"
+            },
                 new Market
                 {
                     Id = 2,
@@ -114,7 +115,7 @@ namespace IraoAssignment.Server.Data
             if (DynamicQueryableExtensions.Any(context.MarketWithCompanyAndPrices)) return;
 
             MarketWithCompanyAndPrice GenerateFor(int id, int companyId, int marketId)
-                => new()
+                => new MarketWithCompanyAndPrice
                 {
                     Id = id,
                     Company = context.Companies.Single(c => c.Id == companyId),
@@ -122,10 +123,15 @@ namespace IraoAssignment.Server.Data
                     CompanyPrice = new Random().Next(10, 30)
                 };
 
+            var range = Enumerable.Range(1, 5) // companies
+                .SelectMany(companyId => Enumerable.Range(1, 3) // markets
+                    .Select(marketId => (companyId, marketId)))
+                .Select((marketCompanyId, index) => (marketCompanyId.marketId, marketCompanyId.companyId, index: index + 1))
+                .ToList();
+
             context.MarketWithCompanyAndPrices.AddRange(
-                Enumerable.Range(1, 5) // companies
-                    .SelectMany(companyId => Enumerable.Range(1, 3) // markets
-                        .Select((marketId, index) => GenerateFor(index, companyId, marketId))));
+                range
+                    .Select(rng => GenerateFor(rng.index, rng.companyId, rng.marketId)).ToList());
 
             context.SaveChanges();
         }
