@@ -13,10 +13,7 @@ namespace IraoAssignment.Server
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -31,9 +28,6 @@ namespace IraoAssignment.Server
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<IraoAssignmentDbContext>();
-
-            //services.AddDefaultIdentity<IdentityUser>().AddRoles<IdentityRole>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, IraoAssignmentDbContext>();
@@ -76,8 +70,6 @@ namespace IraoAssignment.Server
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
             });
-
-            DataGenerator.SeedUsers(userManager);
         }
     }
 }
