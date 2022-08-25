@@ -16,7 +16,7 @@ namespace IraoAssignment.Server
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static Task Main(string[] args)
         {
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); }).Build();
@@ -31,16 +31,17 @@ namespace IraoAssignment.Server
             {
                 var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                await UserAndRoleDataInitializer.SeedData(userManager, roleManager);
+                //await UserAndRoleDataInitializer.SeedData(userManager, roleManager);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
             //4. Call the DataGenerator to create sample data
-            DataGenerator.Initialize(services);
+            //DataGenerator.Initialize(services);
 
             host.Run();
+            return Task.CompletedTask;
         }
     }
 }
