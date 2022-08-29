@@ -5,8 +5,9 @@
 
 <h3>Create</h3>
 
-@* <Form ButtonText="Add" MarketWithCompanyAndPrice="@marketWithCompanyAndPrice" *@
-@*             OnValidSubmit="@CreateMarketWithCompanyAndPrice" /> *@
+<IraoAssignment.Client.Pages.MarketWithCompanyAndPrice.Form ButtonText="Add a M&C" MarketWithCompanyAndPrice="@marketWithCompanyAndPrice"
+            OnValidSubmit="@CreateMarketWithCompanyAndPrice" />
+
 
 @code {
     MarketWithCompanyAndPrice marketWithCompanyAndPrice = new MarketWithCompanyAndPrice();

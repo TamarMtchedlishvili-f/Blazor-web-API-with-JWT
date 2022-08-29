@@ -5,8 +5,8 @@
 
 <h3>Create</h3>
 
-<Form ButtonText="Add a company" Company="@company"
-            OnValidSubmit="@CreateCompany" />
+<IraoAssignment.Client.Pages.Company.Form ButtonText="Add a company" Company="@company"
+      @OnValidSubmit="@CreateCompany" />
 
 @code {
     Company company = new Company();

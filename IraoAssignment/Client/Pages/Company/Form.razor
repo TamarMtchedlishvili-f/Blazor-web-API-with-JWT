@@ -29,19 +29,19 @@
             </div>
         </div> @* <RadzenDropDown TValue="string" @bind-Value="Id" Placeholder="Select Market" AllowFiltering="true" Data="@(markets)" TextProperty="MarketName" ValueProperty="Id" Style="margin-bottom: 20px" /> *@
 
-    @* <div class="form-group "> *@
-    @*     <div> *@
-    @*         <label>Market Name :</label> *@
-    @*         <div> *@
-    @*             <InputText @bind-Value="@Company.MarketName"/> *@
-    @*             <ValidationMessage For="@(() => Company.MarketName)"/> *@
-    @*         </div> *@
-    @*     </div> *@
-    @* </div> *@
+     @*<div class="form-group "> 
+         <div> 
+             <label>Market Name :</label> 
+             <div> 
+                 <InputText @bind-Value="@Company.CompanyName"/> 
+                 <ValidationMessage For="@(() => Company.CompanyName)"/> 
+             </div> 
+         </div> 
+    </div> *@
 
-    <button type="submit" class="btn btn-success">
+   @* <button type="submit" class="btn btn-success">
         @ButtonText
-    </button>
+    </button>*@
 
 </EditForm>
 

@@ -5,21 +5,21 @@
 <EditForm Model="@MarketWithCompanyAndPrice" OnValidSubmit="@OnValidSubmit">
     <DataAnnotationsValidator/>
     <div class="form-group">
-        <label>Select Company() :</label>
+        <label>Select a Company() :</label>
         <div>
             <RadzenDropDown @bind-Value="@MarketWithCompanyAndPrice.Company"/>
             <ValidationMessage For="@(() => MarketWithCompanyAndPrice.Company)"/>
         </div>
     </div>
     <div class="form-group">
-        <label>Select Market() :</label>
+        <label>Select a Market() :</label>
         <div>
             <RadzenDropDown @bind-Value="@MarketWithCompanyAndPrice.Market"/>
             <ValidationMessage For="@(() => MarketWithCompanyAndPrice.Market)"/>
         </div>
     </div>
        <div class="form-group">
-            <label>Write Company Price() :</label>
+            <label>Write the Company Price() :</label>
             <div>
                 <InputNumber @bind-Value="@MarketWithCompanyAndPrice.CompanyPrice"/>
                 <ValidationMessage For="@(() => MarketWithCompanyAndPrice.CompanyPrice)"/>
@@ -53,3 +53,6 @@
 
 
 }
+
+
+

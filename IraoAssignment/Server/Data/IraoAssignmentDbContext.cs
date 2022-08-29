@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -9,52 +10,54 @@ using IraoAssignment.Shared;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace IraoAssignment.Server.Data
 {
-    //public static class UserAndRoleDataInitializer
-    //{
-    //    public static async Task SeedData(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
-    //    {
-    //        await SeedRoles(roleManager);
-    //        await SeedUsers(userManager);
-    //    }
+    public static class UserAndRoleDataInitializer
+    {
+        public static async Task SeedData(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            await SeedRoles(roleManager);
+            await SeedUsers(userManager);
+        }
 
-    //    private static async Task SeedUsers(UserManager<ApplicationUser> userManager)
-    //    {
-    //        var johnDoeEmail = "johndoe@localhost.com";
-    //        if (await userManager.FindByEmailAsync(johnDoeEmail) == null)
-    //        {
-    //            var user = new ApplicationUser
-    //            {
-    //                UserName = johnDoeEmail,
-    //                Email = johnDoeEmail,
-    //                EmailConfirmed = true
-    //            };
-    //            //user.FirstName = "John";
-    //            //user.LastName = "Doe";
+        private static async Task SeedUsers(UserManager<ApplicationUser> userManager)
+        {
+            var johnDoeEmail = "johndoe@localhost.com";
+            if (await userManager.FindByEmailAsync(johnDoeEmail) == null)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = johnDoeEmail,
+                    Email = johnDoeEmail,
+                    EmailConfirmed = true
+                };
+                //user.FirstName = "John";
+                //user.LastName = "Doe";
 
-    //            var result = await userManager.CreateAsync(user, "P@ssw0rd1!");
+                var result = await userManager.CreateAsync(user, "P@ssw0rd1!");
 
-    //            if (result.Succeeded)
-    //            {
-    //                await userManager.AddToRoleAsync(user, Admin);
-    //            }
-    //        }
-    //    }
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, Admin);
+                }
+            }
+        }
 
-    //    private const string Admin = nameof(Admin);
+        private const string Admin = nameof(Admin);
 
-    //    private static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
-    //    {
-    //        if (await roleManager.RoleExistsAsync(Admin)) return;
+        private static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
+        {
+            if (await roleManager.RoleExistsAsync(Admin)) return;
 
-    //        var role = new IdentityRole { Name = Admin };
-    //        await roleManager.CreateAsync(role);
-    //    }
-    //}
+            var role = new IdentityRole { Name = Admin };
+            await roleManager.CreateAsync(role);
+        }
+    }
 
     //public static class DataGenerator
     //{
@@ -144,9 +147,36 @@ namespace IraoAssignment.Server.Data
         {
         }
 
-       
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                   .SetBasePath(Directory.GetCurrentDirectory())
+                   .AddJsonFile("appsettings.json")
+                   .Build();
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                optionsBuilder.UseSqlServer(connectionString);
+            }
+        }
+
+
         public DbSet<Company> Companies { get; set; }
         public DbSet<Market> Markets { get; set; }
         public DbSet<MarketWithCompanyAndPrice> MarketWithCompanyAndPrices { get; set; }
+
+
     }
+
+    //public class AiRagaca : IDesignTimeDbContextFactory<IraoAssignmentDbContext>
+    //{
+    //    public IraoAssignmentDbContext CreateDbContext(string[] args)
+    //    {
+    //        var optionsBuilder = new DbContextOptionsBuilder<IraoAssignmentDbContext>();
+    //        optionsBuilder.UseSqlServer();
+    //        var optionalStorageOptions = new StorageOptions
+
+    //        return IraoAssignmentDbContext(optionsBuilder.Options)
+    //    }
+    //}
 }

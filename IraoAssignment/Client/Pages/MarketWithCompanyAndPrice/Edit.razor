@@ -6,12 +6,12 @@
 
 <h3>Edit</h3>
 
-@* <Form ButtonText="Update" MarketWithCompanyAndPrice="marketWithCompanyAndPrice" *@
-      OnValidSubmit="@EditMarketWithCompanyAndPrice" />
+<IraoAssignment.Client.Pages.MarketWithCompanyAndPrice.Form ButtonText="Update" MarketWithCompanyAndPrice="marketWithCompanyAndPrice" *@
+                                                            OnValidSubmit="@EditMarketWithCompanyAndPrice" />
 
 @code {
     [Parameter] public int MarketWithCompanyAndPriceId { get; set; }
-    
+
     MarketWithCompanyAndPrice marketWithCompanyAndPrice = new();
 
     protected override async Task OnParametersSetAsync()

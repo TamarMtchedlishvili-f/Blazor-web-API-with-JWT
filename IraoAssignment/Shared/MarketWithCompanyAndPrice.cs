@@ -4,6 +4,6 @@
     {
         public Market Market { get; set; }
         public Company Company { get; set; }
-        public decimal CompanyPrice { get; set; }
+        public int CompanyPrice { get; set; }
     }
 }

@@ -21,7 +21,14 @@ namespace IraoAssignment.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<IraoAssignmentDbContext>(options => options.UseInMemoryDatabase("MarketsAndCompanies"));
+            var builder = WebApplication.CreateBuilder();
+
+            // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<IraoAssignmentDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            //services.AddDbContext<IraoAssignmentDbContext>(options => options.UseInMemoryDatabase("MarketsAndCompanies"));
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -34,6 +41,7 @@ namespace IraoAssignment.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+
             services.AddControllers();
             services.AddControllersWithViews();
             services.AddRazorPages();

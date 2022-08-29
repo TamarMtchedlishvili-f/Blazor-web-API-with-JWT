@@ -5,8 +5,8 @@
 
 <h3>Create</h3>
 
-<Form ButtonText="Add a market" Market="@market"
-            OnValidSubmit="@CreateMarket" />
+<IraoAssignment.Client.Pages.Market.Form ButtonText="Add a market" Market="@market"
+      OnValidSubmit="@CreateMarket" />
 
 @code {
     Market market = new Market();
